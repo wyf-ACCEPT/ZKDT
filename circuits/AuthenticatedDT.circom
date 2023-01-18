@@ -66,7 +66,6 @@ template ThreshComp(){
     pathIndex ==> isz.in;
     isz.out ==> out_val; //works
 
-
     component comp = LessThan(64);
     comp.in[0] <== input_val;
     comp.in[1] <== threshold_val;
@@ -176,8 +175,8 @@ template ADTChecker(levels) {
             
         }
 
-i++;
-}
+        i++;
+    }
         
 }
 
