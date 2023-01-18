@@ -26,8 +26,6 @@ template HashNodes() {
     signal input node_attribute;
     signal input node_threshold;
 
-
-
     signal output hash;
 
     component hasher = MiMCSponge(5, 220, 1);
@@ -88,7 +86,7 @@ template ThreshComp(){
 template ADTChecker(levels) {
     signal input leaf;
     signal input root;
-    signal input pathElements[levels]; 
+    signal input pathElements[levels];
     signal input pathIndices[levels];
     signal input nodeVals[levels];
     signal input nodeAttributes[levels];
