@@ -12,30 +12,29 @@ template HashLeftRight() {
     signal output hash;
 
     component hasher = MiMCSponge(2, 220, 1);
+
     hasher.ins[0] <== left;
     hasher.ins[1] <== right;
     hasher.k <== 0;
     hash <== hasher.outs[0];
 }
 
-//**below temp should hash MiMC(left_child_hash, right_child_hash, curr_node_val, node_attribute, node_threshold)
+// Computes MiMC([left_child_hash, right_child_hash, curr_node_val, node_attribute, node_threshold])
 template HashNodes() {
     signal input left_child_hash;
     signal input right_child_hash;
     signal input curr_node_val;
     signal input node_attribute;
     signal input node_threshold;
-
     signal output hash;
 
     component hasher = MiMCSponge(5, 220, 1);
+
     hasher.ins[0] <== left_child_hash;
     hasher.ins[1] <== right_child_hash;
     hasher.ins[2] <== curr_node_val;
     hasher.ins[3] <== node_attribute;
     hasher.ins[4] <== node_threshold;
-
-
     hasher.k <== 0;
     hash <== hasher.outs[0];
 }
@@ -47,31 +46,26 @@ template DualMux() {
     signal input s;
     signal output out[2];
 
+    out[0] <== (in[1] - in[0]) * s + in[0];
+    out[1] <== (in[0] - in[1]) * s + in[1];
     s * (1 - s) === 0;
-    out[0] <== (in[1] - in[0])*s + in[0];
-    out[1] <== (in[0] - in[1])*s + in[1];
 }
 
-//at each level ensures attribute comparison follows properly, assuming each val/threshold is 64 bits max
-// assert true if index=1, input<threshold or if index =0, input>=threshold, assert fails otherwise
+// at each level ensures attribute comparison follows properly, assuming each val/threshold is 64 bits max
+// assert true [if index=1, input<threshold] or [if index=0, input>=threshold], assert fails otherwise
 template ThreshComp(){
-    signal input pathIndex;
+    signal input isLess;
     signal input input_val;
     signal input threshold_val;
  
     component isz = IsZero();
-    
-    signal out_val;
-
-    pathIndex ==> isz.in;
-    isz.out ==> out_val; //works
-
     component comp = LessThan(64);
+    
+    isLess ==> isz.in;
     comp.in[0] <== input_val;
     comp.in[1] <== threshold_val;
 
-    1 - out_val === comp.out;
-    
+    1 - isz.out === comp.out;
 }
 
 // Verifies that ADT path proof is correct for given merkle root and a leaf
@@ -181,6 +175,4 @@ template ADTChecker(levels) {
 }
 
 
-
-component main { public [ leaf, root] } =  ADTChecker(10);
-
+component main { public [ leaf, root, inputAttributes ] } =  ADTChecker(10);
